@@ -1,0 +1,75 @@
+{
+  "name": "@vibeshipteam/blog-cms-integration",
+  "version": "0.1.0",
+  "description": "Opinionated blog and CMS integration for Next.js sites using Sanity.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mukeshly/blog-cms-integration.git"
+  },
+  "homepage": "https://github.com/mukeshly/blog-cms-integration",
+  "bugs": {
+    "url": "https://github.com/mukeshly/blog-cms-integration/issues"
+  },
+  "author": "Mukesh Jha <mukeshjha5661@gmail.com>",
+  "license": "MIT",
+  "keywords": [
+    "nextjs",
+    "sanity",
+    "cms",
+    "blog",
+    "portable-text"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "engines": {
+    "node": ">=20"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./server": {
+      "types": "./dist/server.d.ts",
+      "default": "./dist/server.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "genio-nextjs-sanity-kit": "git+https://github.com/mukeshly/genio-nextjs-sanity-kit.git#v0.2.0"
+  },
+  "peerDependencies": {
+    "next": "^15.0.0 || ^16.0.0",
+    "next-sanity": "^11.0.0 || ^12.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "sanity": "^4.0.0 || ^5.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "22.15.17",
+    "next": "15.5.18",
+    "next-sanity": "11.6.12",
+    "react": "19.1.2",
+    "react-dom": "19.1.2",
+    "sanity": "4.22.0",
+    "typescript": "5.8.3"
+  },
+  "scripts": {
+    "clean": "node -e \"import('node:fs').then((fs) => fs.rmSync('dist', { recursive: true, force: true }))\"",
+    "build": "npm run clean && tsc -p tsconfig.json",
+    "check": "tsc --noEmit -p tsconfig.json",
+    "pack:dry-run": "npm pack --dry-run",
+    "prepack": "npm run build"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  }
+}
