@@ -1,6 +1,6 @@
 {
   "name": "@vibeshipteam/blog-cms-integration",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Opinionated blog and CMS integration for Next.js sites using Sanity.",
   "repository": {
     "type": "git",
