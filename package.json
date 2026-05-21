@@ -1,6 +1,6 @@
 {
   "name": "@vibeshipteam/blog-cms-integration",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Opinionated blog and CMS integration for Next.js sites using Sanity.",
   "repository": {
     "type": "git",
@@ -43,7 +43,7 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "genio-nextjs-sanity-kit": "git+https://github.com/mukeshly/genio-nextjs-sanity-kit.git#v0.2.0"
+    "@vibeshipteam/genio-nextjs-sanity-kit": "^0.3.0"
   },
   "peerDependencies": {
     "next": "^15.0.0 || ^16.0.0",

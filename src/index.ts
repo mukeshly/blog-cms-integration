@@ -1,6 +1,6 @@
-import { createSchemaTypes } from "genio-nextjs-sanity-kit/schemas";
-import { getSanityEnvConfig, hasSanityConfig, requireSanityValue } from "genio-nextjs-sanity-kit/sanity";
-import { createSiteToolkit } from "genio-nextjs-sanity-kit/site";
+import { createSchemaTypes } from "@vibeshipteam/genio-nextjs-sanity-kit/schemas";
+import { getSanityEnvConfig, hasSanityConfig, requireSanityValue } from "@vibeshipteam/genio-nextjs-sanity-kit/sanity";
+import { createSiteToolkit } from "@vibeshipteam/genio-nextjs-sanity-kit/site";
 
 export type BlogCmsIntegrationOptions = {
   defaultAuthorName?: string;

@@ -1,6 +1,6 @@
 # `@vibeshipteam/blog-cms-integration`
 
-Opinionated blog + CMS integration for Next.js sites using Sanity and [`genio-nextjs-sanity-kit`](https://github.com/mukeshly/genio-nextjs-sanity-kit).
+Opinionated blog + CMS integration for Next.js sites using Sanity and [`@vibeshipteam/genio-nextjs-sanity-kit`](https://github.com/mukeshly/genio-nextjs-sanity-kit).
 
 ## What it wraps
 
@@ -21,7 +21,7 @@ Opinionated blog + CMS integration for Next.js sites using Sanity and [`genio-ne
 npm install @vibeshipteam/blog-cms-integration
 ```
 
-The package pulls in `genio-nextjs-sanity-kit` from GitHub until that dependency is published to npm.
+The package depends on `@vibeshipteam/genio-nextjs-sanity-kit` from npm.
 
 Required peer dependencies come from the consuming app:
 
