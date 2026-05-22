@@ -58,6 +58,136 @@ import { createBlogCmsPublisher } from "@vibeshipteam/blog-cms-integration/serve
 export const publisher = createBlogCmsPublisher(process.env);
 ```
 
+## Live Studio Setup
+
+Package installation is not enough to make Studio work reliably on a deployed Next.js app. The consuming app still needs a Studio route, public Sanity config, and a `sanity.config.ts` setup that is safe to import from a client boundary.
+
+### Required environment variables
+
+Studio expects these public variables:
+
+```bash
+NEXT_PUBLIC_SANITY_PROJECT_ID=your_project_id
+NEXT_PUBLIC_SANITY_DATASET=production
+NEXT_PUBLIC_SANITY_API_VERSION=2025-02-19
+NEXT_PUBLIC_SANITY_STUDIO_TITLE=Your Site CMS
+```
+
+If you use server-side publish helpers, also set:
+
+```bash
+BLOG_PUBLISH_API_SECRET=your_secret_here
+```
+
+### Studio route
+
+Mount Studio under `/studio/[workspace]` and redirect `/studio` to a concrete workspace such as `/studio/production`.
+
+```tsx
+// app/studio/[[...tool]]/page.tsx
+import { redirect } from "next/navigation";
+import { hasSanityConfig } from "@/sanity/env";
+import StudioClient from "./StudioClient";
+
+export { metadata, viewport } from "next-sanity/studio";
+
+export default async function StudioPage({
+  params,
+}: {
+  params: Promise<{ tool?: string[] }>;
+}) {
+  if (!hasSanityConfig) {
+    return <section>Sanity setup required.</section>;
+  }
+
+  const resolvedParams = await params;
+
+  if (!resolvedParams.tool || resolvedParams.tool.length === 0) {
+    redirect("/studio/production");
+  }
+
+  return <StudioClient />;
+}
+```
+
+```tsx
+// app/studio/[[...tool]]/StudioClient.tsx
+"use client";
+
+import { NextStudio } from "next-sanity/studio";
+import config from "../../../sanity.config";
+
+export default function StudioClient() {
+  return <NextStudio config={config} />;
+}
+```
+
+### `sanity.config.ts`
+
+Do not rely on runtime-only server env access inside `sanity.config.ts`. In real apps this config is often imported by a client component.
+
+Instead, pass the public Sanity values explicitly:
+
+```ts
+import { createBlogCmsIntegration } from "@vibeshipteam/blog-cms-integration";
+import { defineConfig } from "sanity";
+import { structureTool } from "sanity/structure";
+
+const cms = createBlogCmsIntegration(
+  {
+    NEXT_PUBLIC_SANITY_PROJECT_ID: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
+    NEXT_PUBLIC_SANITY_DATASET: process.env.NEXT_PUBLIC_SANITY_DATASET,
+    NEXT_PUBLIC_SANITY_API_VERSION: process.env.NEXT_PUBLIC_SANITY_API_VERSION,
+    NEXT_PUBLIC_SANITY_STUDIO_TITLE: process.env.NEXT_PUBLIC_SANITY_STUDIO_TITLE,
+    NODE_ENV: process.env.NODE_ENV,
+  },
+  cmsOptions,
+);
+
+export default defineConfig(
+  cms.createStudioWorkspaces({
+    plugins: [structureTool()],
+  }) as Parameters<typeof defineConfig>[0],
+);
+```
+
+If config may be missing in some environments, prefer rendering a harmless fallback workspace instead of crashing the Studio route.
+
+### Publish and revalidation
+
+If your app creates or updates content through the server helpers, add an authenticated route that:
+
+- validates `BLOG_PUBLISH_API_SECRET`
+- calls the publish helper
+- revalidates the affected paths
+
+Typical revalidation targets are:
+
+- `/blog`
+- the published URL
+- `/sitemap.xml`
+
+### Deployment notes
+
+Some hosts treat `NEXT_PUBLIC_SANITY_*` values as secrets during scanning even though they are intentionally public. If your platform supports secret-scan allowlists, you may need to exempt these keys.
+
+Example for Netlify:
+
+```toml
+[build.environment]
+SECRETS_SCAN_OMIT_KEYS = "NEXT_PUBLIC_SANITY_API_VERSION,NEXT_PUBLIC_SANITY_DATASET,NEXT_PUBLIC_SANITY_PROJECT_ID"
+```
+
+### Production checklist
+
+Before considering Studio setup complete, verify:
+
+- `/studio` redirects to `/studio/production`
+- `/studio/production` loads successfully
+- missing env vars produce a clear setup state instead of a runtime crash
+- Sanity images load from `cdn.sanity.io`
+- publish flows revalidate the blog index and the affected page
+
 ## Release
 
 ```bash
