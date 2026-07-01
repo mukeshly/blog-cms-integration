@@ -1,8 +1,15 @@
 import { createSchemaTypes } from "@vibeshipteam/genio-nextjs-sanity-kit/schemas";
 import { getSanityEnvConfig, hasSanityConfig, requireSanityValue } from "@vibeshipteam/genio-nextjs-sanity-kit/sanity";
 import { createSiteToolkit } from "@vibeshipteam/genio-nextjs-sanity-kit/site";
+import {
+  createBlogPortableTextComponents,
+  extractTrailingBlogCta,
+  isExternalBlogHref,
+  normalizeBlogArticleHref,
+} from "./frontend.js";
 
 export type BlogCmsIntegrationOptions = {
+  articleBasePath?: string;
   defaultAuthorName?: string;
   fallbackCategoryLabel?: string;
   fallbackImage?: string;
@@ -134,6 +141,7 @@ export function createBlogCmsIntegration(
         width: number,
         height: number,
       ) => toolkit.getSanityImageUrl(source, width, height),
+      getBlogBodyImageUrl: toolkit.getBlogBodyImageUrl,
       getBlogCoverImageUrl: toolkit.getBlogCoverImageUrl,
       getPageBodyImageUrl: toolkit.getPageBodyImageUrl,
       getPageCoverImageUrl: toolkit.getPageCoverImageUrl,
@@ -145,6 +153,7 @@ export function createBlogCmsIntegration(
       getBlogPostBySlug: toolkit.getBlogPostBySlug,
       getBlogPostPlainText: toolkit.getBlogPostPlainText,
       getBlogPostSlugs: toolkit.getBlogPostSlugs,
+      normalizeBlogPostBody: toolkit.normalizeBlogPostBody,
     },
     pages: {
       getAllSitePages: toolkit.getAllSitePages,
@@ -155,6 +164,39 @@ export function createBlogCmsIntegration(
       getSitePagePlainText: toolkit.getSitePagePlainText,
       getSitePageSlugs: toolkit.getSitePageSlugs,
     },
+    frontend: {
+      articleBasePath: options.articleBasePath ?? "/blog",
+      createPortableTextComponents: (
+        frontendOptions: Parameters<typeof createBlogPortableTextComponents>[0] = {},
+      ) =>
+        createBlogPortableTextComponents({
+          articleBasePath: options.articleBasePath,
+          getImageUrl: toolkit.getBlogBodyImageUrl,
+          ...frontendOptions,
+          reservedRootSlugs: options.reservedRootSlugs,
+          siteUrl: options.siteUrl,
+        }),
+      extractTrailingBlogCta,
+      isExternalBlogHref: (href: string) =>
+        isExternalBlogHref(href, {
+          articleBasePath: options.articleBasePath,
+          reservedRootSlugs: options.reservedRootSlugs,
+          siteUrl: options.siteUrl,
+        }),
+      normalizeBlogArticleHref: (href: string) =>
+        normalizeBlogArticleHref(href, {
+          articleBasePath: options.articleBasePath,
+          reservedRootSlugs: options.reservedRootSlugs,
+          siteUrl: options.siteUrl,
+        }),
+    },
     createStudioWorkspaces,
   };
 }
+
+export {
+  createBlogPortableTextComponents,
+  extractTrailingBlogCta,
+  isExternalBlogHref,
+  normalizeBlogArticleHref,
+};

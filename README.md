@@ -37,6 +37,7 @@ Required peer dependencies come from the consuming app:
 import { createBlogCmsIntegration } from "@vibeshipteam/blog-cms-integration";
 
 export const cms = createBlogCmsIntegration(process.env, {
+  articleBasePath: "/blog",
   defaultAuthorName: "Example Site",
   fallbackCategoryLabel: "Editorial",
   fallbackImage: "/og-default.jpg",
@@ -47,6 +48,28 @@ export const cms = createBlogCmsIntegration(process.env, {
   siteUrl: "https://example.com",
   studioTitle: "Example CMS",
   timeZone: "UTC",
+});
+```
+
+Frontend helpers:
+
+```ts
+import {
+  createBlogPortableTextComponents,
+  normalizeBlogArticleHref,
+} from "@vibeshipteam/blog-cms-integration";
+
+const portableTextComponents = createBlogPortableTextComponents({
+  articleBasePath: "/blog",
+  getImageUrl: cms.media.getBlogBodyImageUrl,
+  reservedRootSlugs: ["about", "blog", "contact"],
+  siteUrl: "https://example.com",
+});
+
+const href = normalizeBlogArticleHref("/my-article-slug", {
+  articleBasePath: "/blog",
+  reservedRootSlugs: ["about", "blog", "contact"],
+  siteUrl: "https://example.com",
 });
 ```
 
@@ -76,6 +99,20 @@ Recommended implementation notes:
 - use the shared toolkit's blog helpers for reads
 - use the toolkit image helpers for cover and body images
 - normalize body image blocks before rendering when you need concrete image URLs in the client tree
+- use `normalizeBlogArticleHref()` or `cms.frontend.normalizeBlogArticleHref()` so stored internal links resolve onto the real article route
+- use `createBlogPortableTextComponents()` or `cms.frontend.createPortableTextComponents()` as the default renderer baseline for new clients
+
+## Frontend Quickstart
+
+For a new client blog frontend, the minimum path is:
+
+1. Create the CMS bootstrap with `createBlogCmsIntegration()`
+2. Set `articleBasePath`, usually `/blog`
+3. Use `cms.blog.getAllBlogPosts()` in the blog index
+4. Use `cms.blog.getBlogPostBySlug()` in the article page
+5. Render the body with `createBlogPortableTextComponents({ getImageUrl: cms.media.getBlogBodyImageUrl, ... })`
+6. If needed, call `cms.blog.normalizeBlogPostBody()` before rendering client-side Portable Text
+7. Validate the shared golden test article before go-live
 
 If the client blog frontend uses Genio-published Portable Text from Sanity, also follow the Genio-side policy document:
 
