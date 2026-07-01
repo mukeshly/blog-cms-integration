@@ -58,6 +58,29 @@ import { createBlogCmsPublisher } from "@vibeshipteam/blog-cms-integration/serve
 export const publisher = createBlogCmsPublisher(process.env);
 ```
 
+## Portable Text Rendering Contract
+
+This package wires Sanity reads, schema assembly, and Studio setup into a Next.js site, but the consuming app still owns the actual article renderer.
+
+For Genio-published content, the consuming site must:
+
+- render Portable Text `marks.link` as real anchors
+- render Portable Text `types.image` explicitly for inline body images
+- keep featured images separate from body images
+- verify that inline body images remain present after hydration, not only in SSR HTML
+- verify that internal article links use the site's real route pattern, usually `/blog/[slug]`
+- verify that no raw markdown artifacts such as `[text](url)` appear on the live page
+
+Recommended implementation notes:
+
+- use the shared toolkit's blog helpers for reads
+- use the toolkit image helpers for cover and body images
+- normalize body image blocks before rendering when you need concrete image URLs in the client tree
+
+If the client blog frontend uses Genio-published Portable Text from Sanity, also follow the Genio-side policy document:
+
+- `docs/CLIENT_BLOG_INLINE_IMAGE_RENDER_POLICY.md`
+
 ## Live Studio Setup
 
 Package installation is not enough to make Studio work reliably on a deployed Next.js app. The consuming app still needs a Studio route, public Sanity config, and a `sanity.config.ts` setup that is safe to import from a client boundary.
